@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vocABARy - Detect</title>
+    <link href="{% static 'styles.css' %}" rel="stylesheet">
+    <style>
+        /* Make the entire container take full viewport height */
+.full-height {
+    height: 100vh;
+    display: flex;
+}
+
+/* Style the camera feed */
+.video-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-right: 2px solid #ccc;
+}
+
+/* Style the sidebar */
+.sidebar {
+    background-color: #000000;
+    padding: 20px;
+    overflow-y: auto;
+    height: 100%;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.05);
+}
+
+/* Optional: remove default margins/padding */
+body, html {
+    margin: 0;
+    padding: 0;
+}
+
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <span class="logo">voc<span class="highlight">ABARy</span></span>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">My Lists</a></li>
+            </ul>
+        </div>
+        <div class="nav-right">
+            <select class="language-select" id="languageDropdown">
+                <option value="tamil" selected>Tamil</option>
+                <option value="telugu">Telugu</option>
+                <option value="kannada">Kannada</option>
+                <option value="hindi">Hindi</option>
+                <option value="french">French</option>
+            </select>
+            <div class="points">⭐ 10</div>
+            <div class="word-count">📘 0 words</div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="container full-height">
+        <div class="row full-height">
+            <!-- Left: Camera feed (80%) -->
+            <div class="camera-section" style="width: 80%;">
+                <img src="{% url 'video_feed' %}" id="video-feed" alt="Live Feed" class="video-feed">
+            </div>
+    
+            <!-- Right: Detected words (20%) -->
+            <div class="sidebar" style="width: 20%;">
+                <h2>Detected Words</h2>
+                <ul id="detected-words">
+                    <!-- Populated via JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateDetectedWords() {
+            fetch("{% url 'get_detected_objects' %}")
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById("detected-words");
+                    list.innerHTML = ""; // clear old entries
+                    data.objects.forEach(obj => {
+                        const li = document.createElement("li");
+                        li.textContent = obj;
+                        list.appendChild(li);
+                    });
+                });
+        }
+        
+        // Call every 2 seconds
+        setInterval(updateDetectedWords, 2000);
+        </script>
+
+</body>
+</html>
